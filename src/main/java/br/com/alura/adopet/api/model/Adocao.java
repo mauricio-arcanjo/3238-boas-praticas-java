@@ -19,10 +19,12 @@ public class Adocao {
 
     private LocalDateTime data;
 
+    @JsonBackReference("tutor_adocoes")
     @ManyToOne
     @JoinColumn(name = "tutor_id")
     private Tutor tutor;
 
+    @JsonManagedReference("adocao_pets")
     @OneToOne
     @JoinColumn(name = "pet_id")
     private Pet pet;

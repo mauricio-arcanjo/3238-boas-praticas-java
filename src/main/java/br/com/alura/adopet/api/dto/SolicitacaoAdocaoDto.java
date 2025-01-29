@@ -8,11 +8,9 @@ import jakarta.validation.constraints.NotNull;
 public record SolicitacaoAdocaoDto(
 
         @NotNull
-//        @JsonManagedReference("adocao_pets")
         Long idPet,
 
         @NotNull
-//        @JsonBackReference("tutor_adocoes")
         Long idTutor,
 
         @NotBlank
