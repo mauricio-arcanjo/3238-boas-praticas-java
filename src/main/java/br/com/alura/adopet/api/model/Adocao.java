@@ -19,14 +19,14 @@ public class Adocao {
 
     private LocalDateTime data;
 
-    @JsonBackReference("tutor_adocoes")
     @ManyToOne
+    @JsonBackReference("tutor_adocoes")
     @JoinColumn(name = "tutor_id")
     private Tutor tutor;
 
-    @JsonManagedReference("adocao_pets")
     @OneToOne
     @JoinColumn(name = "pet_id")
+    @JsonManagedReference("adocao_pets")
     private Pet pet;
 
     private String motivo;
@@ -34,8 +34,18 @@ public class Adocao {
     @Enumerated(EnumType.STRING)
     private StatusAdocao status;
 
-    @Column(name = "justificativa_status")
     private String justificativaStatus;
+
+    public Adocao() {
+    }
+
+    public Adocao(Tutor tutor, Pet pet, String motivo) {
+        this.tutor = tutor;
+        this.pet = pet;
+        this.motivo = motivo;
+        this.status = StatusAdocao.AGUARDANDO_AVALIACAO;
+        this.data = LocalDateTime.now();
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -62,16 +72,8 @@ public class Adocao {
         return data;
     }
 
-    public void setData(LocalDateTime data) {
-        this.data = data;
-    }
-
     public Tutor getTutor() {
         return tutor;
-    }
-
-    public void setTutor(Tutor tutor) {
-        this.tutor = tutor;
     }
 
     public Pet getPet() {
@@ -86,23 +88,21 @@ public class Adocao {
         return motivo;
     }
 
-    public void setMotivo(String motivo) {
-        this.motivo = motivo;
-    }
-
     public StatusAdocao getStatus() {
         return status;
-    }
-
-    public void setStatus(StatusAdocao status) {
-        this.status = status;
     }
 
     public String getJustificativaStatus() {
         return justificativaStatus;
     }
 
-    public void setJustificativaStatus(String justificativaStatus) {
+    public void marcarComoAprovada() {
+        this.status = StatusAdocao.APROVADO;
+    }
+
+    public void marcarComoReprovada(String justificativaStatus){
+        this.status = StatusAdocao.REPROVADO;
         this.justificativaStatus = justificativaStatus;
     }
+
 }

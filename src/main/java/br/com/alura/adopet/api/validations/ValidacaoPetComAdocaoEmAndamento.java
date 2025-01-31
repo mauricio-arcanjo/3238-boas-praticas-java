@@ -15,21 +15,18 @@ import java.util.List;
 public class ValidacaoPetComAdocaoEmAndamento implements  ValidacaoSolicitacaoAdocao{
 
     private final AdocaoRepository adocaoRepository;
-    private final PetRepository petRepository;
 
     public ValidacaoPetComAdocaoEmAndamento(AdocaoRepository adocaoRepository, PetRepository petRepository) {
         this.adocaoRepository = adocaoRepository;
-        this.petRepository = petRepository;
     }
 
     @Override
     public void validar(SolicitacaoAdocaoDto dto) {
-        Pet pet = petRepository.getReferenceById(dto.idPet());
-        List<Adocao> adocoes = adocaoRepository.findAll();
-        for (Adocao a : adocoes) {
-            if (a.getPet() == pet && a.getStatus() == StatusAdocao.AGUARDANDO_AVALIACAO) {
-                throw new ValidacaoException("Pet já está aguardando avaliação para ser adotado!");
-            }
+        boolean petTemAdocaoEmAndamento = adocaoRepository
+                .existsByPetIdAndStatus(dto.idPet(), StatusAdocao.AGUARDANDO_AVALIACAO);
+
+        if (petTemAdocaoEmAndamento) {
+            throw new ValidacaoException("Pet já está aguardando avaliação para ser adotado!");
         }
     }
 }

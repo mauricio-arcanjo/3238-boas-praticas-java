@@ -15,23 +15,19 @@ import java.util.List;
 public class ValidacaoTutorComAdocaoEmAndamento implements  ValidacaoSolicitacaoAdocao {
 
     private final AdocaoRepository adocaoRepository;
-    private final TutorRepository tutorRepository;
 
     public ValidacaoTutorComAdocaoEmAndamento(AdocaoRepository adocaoRepository, TutorRepository tutorRepository) {
         this.adocaoRepository = adocaoRepository;
-        this.tutorRepository = tutorRepository;
     }
 
     @Override
     public void validar(SolicitacaoAdocaoDto dto) {
 
-        List<Adocao> adocoes = adocaoRepository.findAll();
-        Tutor tutor = tutorRepository.getReferenceById(dto.idTutor());
+        boolean tutorTemAdocaoEmAndamento = adocaoRepository
+                .existsByTutorIdAndStatus(dto.idTutor(), StatusAdocao.AGUARDANDO_AVALIACAO);
 
-        for (Adocao a : adocoes) {
-            if (a.getTutor() == tutor && a.getStatus() == StatusAdocao.AGUARDANDO_AVALIACAO) {
-                throw new ValidacaoException("Tutor já possui outra adoção aguardando avaliação!");
-            }
+        if (tutorTemAdocaoEmAndamento) {
+            throw new ValidacaoException("Tutor já possui outra adoção aguardando avaliação!");
         }
     }
 }

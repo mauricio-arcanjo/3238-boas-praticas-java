@@ -13,35 +13,21 @@ public class Pet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    @NotNull
-    @Column(name = "tipo")
     private TipoPet tipo;
 
-    @NotBlank
-    @Column(name = "nome")
     private String nome;
 
-    @NotBlank
-    @Column(name = "raca")
     private String raca;
 
-    @NotNull
-    @Column(name = "idade")
     private Integer idade;
 
-    @NotBlank
-    @Column(name = "cor")
     private String cor;
 
-    @NotNull
-    @Column(name = "peso")
     private Float peso;
 
-    @Column(name = "adotado")
     private Boolean adotado;
 
     @ManyToOne
@@ -52,6 +38,21 @@ public class Pet {
     @OneToOne(mappedBy = "pet")
     @JsonBackReference("adocao_pets")
     private Adocao adocao;
+
+    public Pet() {
+    }
+
+    public Pet(TipoPet tipo, String nome, String raca, Integer idade, String cor, Float peso, Abrigo abrigo) {
+        this.tipo = tipo;
+        this.nome = nome;
+        this.raca = raca;
+        this.idade = idade;
+        this.cor = cor;
+        this.peso = peso;
+        this.abrigo = abrigo;
+        this.adotado = false;
+        abrigo.getPets().add(this);
+    }
 
     @Override
     public boolean equals(Object o) {

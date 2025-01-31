@@ -1,12 +1,12 @@
 package br.com.alura.adopet.api.service;
 
+import br.com.alura.adopet.api.dto.CadastrarPetDto;
+import br.com.alura.adopet.api.dto.CadastroAbrigoDto;
 import br.com.alura.adopet.api.exception.ValidacaoException;
 import br.com.alura.adopet.api.model.Abrigo;
 import br.com.alura.adopet.api.model.Pet;
 import br.com.alura.adopet.api.repository.AbrigoRepository;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,17 +28,17 @@ public class AbrigoService {
     }
 
     @Transactional
-    public void cadastrar(Abrigo abrigo){
+    public void cadastrar(CadastroAbrigoDto dto){
 
-        boolean nomeJaCadastrado = repository.existsByNome(abrigo.getNome());
-        boolean telefoneJaCadastrado = repository.existsByTelefone(abrigo.getTelefone());
-        boolean emailJaCadastrado = repository.existsByEmail(abrigo.getEmail());
+        boolean nomeJaCadastrado = repository.existsByNome(dto.nome());
+        boolean telefoneJaCadastrado = repository.existsByTelefone(dto.telefone());
+        boolean emailJaCadastrado = repository.existsByEmail(dto.email());
 
         if (nomeJaCadastrado || telefoneJaCadastrado || emailJaCadastrado) {
             throw new ValidacaoException("Dados já cadastrados para outro abrigo!");
         } else {
+            Abrigo abrigo = new Abrigo(dto.nome(), dto.telefone(), dto.email());
             repository.save(abrigo);
-
         }
     }
 
@@ -48,12 +48,11 @@ public class AbrigoService {
     }
 
     @Transactional
-    public void cadastrarPet(String idOuNome, Pet pet){
+    public void cadastrarPet(String idOuNome, CadastrarPetDto dto){
         Abrigo abrigo = consultarAbrigo(idOuNome);
-        pet.setAbrigo(abrigo);
-        pet.setAdotado(false);
-        abrigo.getPets().add(pet);
-        repository.save(abrigo);
+        Pet pet = new Pet(dto.tipo(), dto.nome(), dto.raca(),
+                dto.idade(), dto.cor(), dto.peso(), abrigo);
+//        repository.save(abrigo);
     }
 
     private Abrigo consultarAbrigo(String idOuNome){
