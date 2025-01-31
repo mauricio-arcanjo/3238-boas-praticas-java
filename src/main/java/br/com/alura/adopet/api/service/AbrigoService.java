@@ -2,6 +2,7 @@ package br.com.alura.adopet.api.service;
 
 import br.com.alura.adopet.api.dto.CadastrarPetDto;
 import br.com.alura.adopet.api.dto.CadastroAbrigoDto;
+import br.com.alura.adopet.api.dto.DetalhesPetDto;
 import br.com.alura.adopet.api.exception.ValidacaoException;
 import br.com.alura.adopet.api.model.Abrigo;
 import br.com.alura.adopet.api.model.Pet;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AbrigoService {
@@ -30,11 +32,9 @@ public class AbrigoService {
     @Transactional
     public void cadastrar(CadastroAbrigoDto dto){
 
-        boolean nomeJaCadastrado = repository.existsByNome(dto.nome());
-        boolean telefoneJaCadastrado = repository.existsByTelefone(dto.telefone());
-        boolean emailJaCadastrado = repository.existsByEmail(dto.email());
+        boolean jaCadastrado = repository.existsByNomeOrTelefoneOrEmail(dto.nome(), dto.telefone(), dto.email());
 
-        if (nomeJaCadastrado || telefoneJaCadastrado || emailJaCadastrado) {
+        if (jaCadastrado) {
             throw new ValidacaoException("Dados já cadastrados para outro abrigo!");
         } else {
             Abrigo abrigo = new Abrigo(dto.nome(), dto.telefone(), dto.email());
@@ -42,9 +42,14 @@ public class AbrigoService {
         }
     }
 
-    public List<Pet> listarPets(String idOuNome){
-        Abrigo abrigo = consultarAbrigo(idOuNome);
-        return abrigo != null ? abrigo.getPets() : null;
+    public List<DetalhesPetDto> listarPets(String idOuNome){
+        try{
+            Abrigo abrigo = consultarAbrigo(idOuNome);
+            return abrigo.getPets().stream().map(DetalhesPetDto::new).toList();
+        } catch (ValidacaoException ignored){
+
+        }
+        return null;
     }
 
     @Transactional
@@ -55,23 +60,16 @@ public class AbrigoService {
 //        repository.save(abrigo);
     }
 
-    private Abrigo consultarAbrigo(String idOuNome){
+    private Abrigo consultarAbrigo(String idOuNome) throws ValidacaoException{
+
+        Optional<Abrigo> optional;
         try {
             Long id = Long.parseLong(idOuNome);
-            return repository.getReferenceById(id);
-        } catch (EntityNotFoundException enfe) {
-            throw new EntityNotFoundException("Abrigo não encontrado!");
-
+            optional = repository.findById(id);
         } catch (NumberFormatException e) {
-
-            try {
-                return repository.findByNome(idOuNome);
-            } catch (EntityNotFoundException enfe) {
-                throw new EntityNotFoundException("Abrigo não encontrado!");
-            }
+            optional = repository.findByNome(idOuNome);
         }
-
-
+        return optional.orElseThrow(() -> new ValidacaoException("Abrigo não encontrado!"));
     }
 
 }

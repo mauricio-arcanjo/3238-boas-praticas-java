@@ -2,6 +2,7 @@ package br.com.alura.adopet.api.controller;
 
 import br.com.alura.adopet.api.dto.CadastrarPetDto;
 import br.com.alura.adopet.api.dto.CadastroAbrigoDto;
+import br.com.alura.adopet.api.dto.DetalhesPetDto;
 import br.com.alura.adopet.api.exception.ValidacaoException;
 import br.com.alura.adopet.api.model.Abrigo;
 import br.com.alura.adopet.api.model.Pet;
@@ -39,8 +40,8 @@ public class AbrigoController {
     }
 
     @GetMapping("/{idOuNome}/pets")
-    public ResponseEntity<List<Pet>> listarPets(@PathVariable String idOuNome) {
-        List<Pet> pets = abrigoService.listarPets(idOuNome);
+    public ResponseEntity<List<DetalhesPetDto>> listarPets(@PathVariable String idOuNome) {
+        List<DetalhesPetDto> pets = abrigoService.listarPets(idOuNome);
         return pets != null ? ResponseEntity.ok(pets)
                 : ResponseEntity.notFound().build();
     }
